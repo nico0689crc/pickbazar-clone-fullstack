@@ -1,0 +1,32 @@
+name: staging_pr_database_ci_pipeline
+
+on:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - 'staging'
+    paths:
+      - 'database'
+  repository_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login Dockerhub
+      env:
+        DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
+        DOCKER_HUB_PASSWORD: ${{secrets.DOCKER_HUB_PASSWORD}}
+      run: docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+      
+    - name: Build the Docker image
+      run: docker build \
+           -t ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}} . \
+           --build-arg MYSQL_DATABASE=${{secrets.MYSQL_DATABASE_STAGING_PR}} \
+           --build-arg MYSQL_USER=${{secrets.MYSQL_USER_STAGING_PR}} \
+           --build-arg MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD_STAGING_PR}} \
+           --build-arg MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD_STAGING_PR}} \
+           
+    - name: Push to Dockerhub
+      run: docker push ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}}:latest
