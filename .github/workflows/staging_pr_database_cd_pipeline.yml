@@ -20,10 +20,4 @@ jobs:
     - name: Stop old docker container
       run: sudo docker stop database-staging-pr || true
     - name: Run Docker Container
-      run: |
-        sudo docker run -rm -d \
-          -p ${{secrets.MYSQL_HOST_PORT_STAGING_PR}}:${{secrets.MYSQL_CONTAINER_PORT_STAGING_PR}} \
-          --name database-staging-pr \
-          -v db-staging-pr:/var/lib/mysql \
-          --network staging-pr-network \
-          ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}}
+      run: sudo docker run -rm -d -p ${{secrets.MYSQL_HOST_PORT_STAGING_PR}}:${{secrets.MYSQL_CONTAINER_PORT_STAGING_PR}} --name database-staging-pr -v db-staging-pr:/var/lib/mysql --network staging-pr-network ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}}
