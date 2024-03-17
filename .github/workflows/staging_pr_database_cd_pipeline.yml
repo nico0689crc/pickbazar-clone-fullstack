@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: Create a network for staging-pr
-      run: sudo docker network create staging-pr-network
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker network create staging-pr-network
     - name: Pull Docker image
       run: sudo docker pull ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}}:latest
     - name: Stop old docker container
