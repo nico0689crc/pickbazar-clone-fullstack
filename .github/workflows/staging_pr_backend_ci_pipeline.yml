@@ -1,0 +1,27 @@
+name: staging_pr_backend_ci_pipeline
+
+on:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - 'staging'
+    paths:
+      - 'backend/**'
+  repository_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login Dockerhub
+      env:
+        DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
+        DOCKER_HUB_PASSWORD: ${{secrets.DOCKER_HUB_PASSWORD}}
+      run: docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+      
+    - name: Build the Docker image
+      run: docker build -t ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_BACKEND_IMAGE_STAGING_PR}} ./backend --build-arg MYSQL_DATABASE=${{secrets.MYSQL_DATABASE_STAGING_PR}} --build-arg MYSQL_USER=${{secrets.MYSQL_USER_STAGING_PR}} --build-arg MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD_STAGING_PR}} --build-arg BACKEND_CONTAINER_PORT=${{secrets.BACKEND_CONTAINER_PORT_STAGING_PR}} --build-arg MYSQL_HOST=${{secrets.MYSQL_HOST_STAGING_PR}}  --build-arg MYSQL_PORT=${{secrets.MYSQL_HOST_PORT_STAGING_PR}} --build-arg FRONTEND_HOST_DOMAIN=${{secrets.FRONTEND_HOST_DOMAIN_STAGING_PR}} 
+           
+    - name: Push to Dockerhub
+      run: docker push ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_BACKEND_IMAGE_STAGING_PR}}:latest
