@@ -1,0 +1,23 @@
+name: staging_pr_backend_cd_pipeline
+
+on:
+  workflow_run:
+    workflows: ["staging_pr_backend_ci_pipeline"]
+    types:
+      - completed
+  repository_dispatch:
+jobs:
+
+  build:
+
+    runs-on: self-hosted
+
+    steps:
+    - name: Create a network for staging-pr
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker network create staging-pr-network || true
+    - name: Pull Docker image
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker pull ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_BACKEND_IMAGE_STAGING_PR}}:latest
+    - name: Delete old docker container
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker rm -f backend-staging-pr || true
+    - name: Run Docker Container
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker run -d -p ${{secrets.BACKEND_HOST_PORT_STAGING_PR}}:${{secrets.BACKEND_CONTAINER_PORT_STAGING_PR}} --name backend-staging-pr -v db-staging-pr:/var/lib/mysql --network staging-pr-network ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_BACKEND_IMAGE_STAGING_PR}}
