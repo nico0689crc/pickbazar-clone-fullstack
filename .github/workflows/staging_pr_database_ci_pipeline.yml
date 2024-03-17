@@ -22,10 +22,10 @@ jobs:
       
     - name: Build the Docker image
       run: |
-           docker build -t ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}} ./database
-           --build-arg MYSQL_DATABASE=${{secrets.MYSQL_DATABASE_STAGING_PR}} 
-           --build-arg MYSQL_USER=${{secrets.MYSQL_USER_STAGING_PR}} 
-           --build-arg MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD_STAGING_PR}} 
+           docker build -t ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}} ./database \
+           --build-arg MYSQL_DATABASE=${{secrets.MYSQL_DATABASE_STAGING_PR}} \
+           --build-arg MYSQL_USER=${{secrets.MYSQL_USER_STAGING_PR}} \
+           --build-arg MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD_STAGING_PR}} \ 
            --build-arg MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD_STAGING_PR}} 
            
     - name: Push to Dockerhub
