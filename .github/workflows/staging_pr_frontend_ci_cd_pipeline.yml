@@ -23,7 +23,10 @@ jobs:
       run: docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
       
     - name: Build the Docker image
-      run: docker build -t ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_FRONTEND_IMAGE_STAGING_PR}} ./frontend
+      run: |
+        docker build -t ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_FRONTEND_IMAGE_STAGING_PR}} \
+          --build-arg NEXT_PUBLIC_BACKEND_HOST_DOMAIN=${{secrets.BACKEND_HOST_DOMAIN_STAGING_PR}} \
+          ./frontend
            
     - name: Push to Dockerhub
       run: docker push ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_FRONTEND_IMAGE_STAGING_PR}}:latest
@@ -40,6 +43,5 @@ jobs:
       run: |
         echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker run --rm -d \
           -p ${{secrets.FRONTEND_HOST_PORT_STAGING_PR}}:${{secrets.FRONTEND_CONTAINER_PORT_STAGING_PR}} \
-          --build-arg NEXT_PUBLIC_BACKEND_HOST_DOMAIN=${{secrets.BACKEND_HOST_DOMAIN_STAGING_PR}} \
           --name frontend-staging-pr \
           ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_FRONTEND_IMAGE_STAGING_PR}}:latest
