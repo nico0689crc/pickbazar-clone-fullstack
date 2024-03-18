@@ -24,6 +24,7 @@ export class ProductsService implements IProductService {
         title: faker.word.words({ count: { min: 5, max: 10 } }),
         description: faker.word.words({ count: { min: 80, max: 100 } }),
         coverUrl: faker.image.urlLoremFlickr({ category: 'products' }),
+        stock: faker.number.int({ min: 0, max: 1000 })
       }),
     );
 
