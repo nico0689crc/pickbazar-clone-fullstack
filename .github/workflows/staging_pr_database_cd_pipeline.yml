@@ -19,11 +19,11 @@ jobs:
     - name: Create a network for staging-pr
       run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker network create staging-pr-network || true
     - name: Stop old docker container
-      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker stop database-staging-pr || true
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker stop ${{secrets.MYSQL_DATABASE_STAGING_PR}} || true
     - name: Run Docker Container
       run: |
         echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker run --rm -d \
-          --name ${{secrets.MYSQL_HOST_STAGING_PR}} \
+          --name ${{secrets.MYSQL_DATABASE_STAGING_PR}} \
           -v /var/lib/mysql \
           -e MYSQL_DATABASE=${{secrets.MYSQL_DATABASE_STAGING_PR}} \
           -e MYSQL_USER=${{secrets.MYSQL_USER_STAGING_PR}} \
