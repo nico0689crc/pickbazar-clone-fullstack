@@ -1,11 +1,14 @@
 name: staging_pr_database_cd_pipeline
 
 on:
-  workflow_run:
-    workflows: ["staging_pr_database_ci_pipeline"]
+  pull_request:
     types:
-      - completed
-  repository_dispatch:
+      - opened
+    branches:
+      - 'staging'
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
 jobs:
 
   build:
@@ -15,9 +18,16 @@ jobs:
     steps:
     - name: Create a network for staging-pr
       run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker network create staging-pr-network || true
-    - name: Pull Docker image
-      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker pull ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}}:latest
-    - name: Delete old docker container
-      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker rm -f database-staging-pr || true
+    - name: Stop old docker container
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker stop database-staging-pr || true
     - name: Run Docker Container
-      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker run -d -p ${{secrets.MYSQL_HOST_PORT_STAGING_PR}}:${{secrets.MYSQL_CONTAINER_PORT_STAGING_PR}} --name database-staging-pr -v db-staging-pr:/var/lib/mysql --network staging-pr-network ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_DB_IMAGE_STAGING_PR}}
+      run: |
+        "echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker run -d \"
+          "--name database-staging-pr \"
+          "-v /var/lib/mysql \"
+          "-e MYSQL_DATABASE=${{secrets.MYSQL_DATABASE_STAGING_PR}} \"
+          "-e MYSQL_USER=${{secrets.MYSQL_USER_STAGING_PR}} \"
+          "-e MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD_STAGING_PR}} \"
+          "-e MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD_STAGING_PR}} \"
+          "--network staging-pr-network \"
+          "mysql:8.3.0"
