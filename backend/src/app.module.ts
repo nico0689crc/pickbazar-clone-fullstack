@@ -23,4 +23,4 @@ import { Product } from './modules/products/entities/product.entity';
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}
