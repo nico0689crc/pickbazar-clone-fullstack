@@ -5,7 +5,7 @@ on:
     workflows: ["staging_pr_backend_ci_pipeline"]
     types:
       - completed
-  repository_dispatch:
+  workflow_dispatch:
 jobs:
 
   build:
