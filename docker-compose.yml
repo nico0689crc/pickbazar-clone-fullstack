@@ -5,20 +5,18 @@ services:
   #########################################
   database:
     container_name: database-dev
-    image: ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_DB_IMAGE}
-    build:
-      context: ./database
-      args:
-        - MYSQL_DATABASE=${MYSQL_DATABASE}
-        - MYSQL_USER=${MYSQL_USER}
-        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    image: mysql:8.3.0
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
       - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
     volumes:
       - db:/var/lib/mysql
     networks:
-      - server
+      - server-dev
   #########################################
   #   Setup Backend container
   #########################################
@@ -30,14 +28,14 @@ services:
     build:
       context: ./backend
       target: development
-      args:
-        - BACKEND_CONTAINER_PORT=${BACKEND_CONTAINER_PORT}
-        - MYSQL_HOST=${MYSQL_HOST}
-        - MYSQL_PORT=${MYSQL_CONTAINER_PORT}
-        - MYSQL_DATABASE=${MYSQL_DATABASE}
-        - MYSQL_USER=${MYSQL_USER}
-        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-        - FRONTEND_HOST_DOMAIN=${FRONTEND_HOST_DOMAIN}
+    environment:
+      - BACKEND_CONTAINER_PORT=${BACKEND_CONTAINER_PORT}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_CONTAINER_PORT}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - FRONTEND_HOST_DOMAIN=${FRONTEND_HOST_DOMAIN}
     ports:
       - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
     volumes:
@@ -46,8 +44,8 @@ services:
         target: /app
     command: npm run start:dev
     networks:
-      - server
+      - server-dev
 volumes:
   db:
 networks:
-  server:
+  server-dev:
