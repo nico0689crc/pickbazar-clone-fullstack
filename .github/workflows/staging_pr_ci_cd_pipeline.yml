@@ -1,4 +1,4 @@
-name: staging_pr_database_cd_pipeline
+name: staging_pr_ci_cd_pipeline
 
 on:
   pull_request:
