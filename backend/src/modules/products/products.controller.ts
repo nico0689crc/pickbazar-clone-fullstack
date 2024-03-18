@@ -1,42 +1,48 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
+  Inject,
+  UseInterceptors,
+  HttpStatus
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { Routes } from 'src/core/constant/routes';
+import { Services } from 'src/core/constant/services';
+import { IProductService } from './interfaces/product.interface';
+import { TransformInterceptor } from 'src/core/interceptors/transform-interceptor';
+import { MessageEntityResponse } from 'src/core/types';
+import { Product } from './entities/product.entity';
+import { plainToClass } from 'class-transformer';
 
-@Controller('products')
+@UseInterceptors(TransformInterceptor)
+@Controller(Routes.PRODUCTS)
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
-
-  @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
-  }
+  constructor(
+    @Inject(Services.PRODUCT) private productsService: IProductService,
+  ) { }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  async findAll() {
+    const products = await this.productsService.findAll({});
+
+    return {
+      result: plainToClass(Product, products),
+      statusCode: HttpStatus.OK,
+    };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  @Get('run-seeds')
+  runSeeds() {
+    return this.productsService.runSeeds();
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
-  }
+  @Get(':uuid')
+  async findOne(@Param('uuid') uuid: string): Promise<MessageEntityResponse<Product>> {
+    const product = await this.productsService.findOne({ where: { uuid } });
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+    return {
+      result: plainToClass(Product, product),
+      statusCode: HttpStatus.OK,
+    };
   }
 }

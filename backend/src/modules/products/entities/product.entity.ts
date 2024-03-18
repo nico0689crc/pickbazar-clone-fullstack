@@ -23,6 +23,7 @@ export class Product {
   @Column({ nullable: true, type: 'text' })
   description: string;
 
+  @Column({ nullable: true })
   coverUrl: string;
 
   @CreateDateColumn()
