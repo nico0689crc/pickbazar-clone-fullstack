@@ -11,7 +11,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: [process.env.FRONTEND_HOST_DOMAIN],
+    origin: [FRONTEND_HOST_DOMAIN],
     credentials: true,
   });
   app.useGlobalPipes(

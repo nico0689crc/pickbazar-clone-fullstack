@@ -12,7 +12,7 @@ export default function Home() {
       {(!isLoading && !error && products) && (
         products.map(product => (
           <div key={product.uuid}>
-            <h3>{product.title} - Stock: {product.stock}</h3>
+            <h3>{product.title} - Current stock: {product.stock}</h3>
             <p>{product.description}</p>
           </div>
         ))

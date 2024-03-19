@@ -4,7 +4,7 @@ import {
   Param,
   Inject,
   UseInterceptors,
-  HttpStatus
+  HttpStatus,
 } from '@nestjs/common';
 import { Routes } from 'src/core/constant/routes';
 import { Services } from 'src/core/constant/services';
@@ -19,7 +19,7 @@ import { plainToClass } from 'class-transformer';
 export class ProductsController {
   constructor(
     @Inject(Services.PRODUCT) private productsService: IProductService,
-  ) { }
+  ) {}
 
   @Get()
   async findAll() {
@@ -37,7 +37,9 @@ export class ProductsController {
   }
 
   @Get(':uuid')
-  async findOne(@Param('uuid') uuid: string): Promise<MessageEntityResponse<Product>> {
+  async findOne(
+    @Param('uuid') uuid: string,
+  ): Promise<MessageEntityResponse<Product>> {
     const product = await this.productsService.findOne({ where: { uuid } });
 
     return {

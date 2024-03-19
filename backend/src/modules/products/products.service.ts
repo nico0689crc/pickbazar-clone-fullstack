@@ -10,7 +10,7 @@ export class ProductsService implements IProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-  ) { }
+  ) {}
   findAll(options: FindManyOptions<Product>): Promise<Product[]> {
     return this.productRepository.find(options);
   }
@@ -18,7 +18,7 @@ export class ProductsService implements IProductService {
     return this.productRepository.findOne(options);
   }
   async runSeeds(): Promise<void> {
-    const promises = [...Array(100)].map((_, i) =>
+    const promises = [...Array(100)].map(() =>
       this.productRepository.save({
         uuid: faker.string.uuid(),
         title: faker.word.words({ count: { min: 5, max: 10 } }),
