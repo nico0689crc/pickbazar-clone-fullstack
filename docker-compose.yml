@@ -45,6 +45,26 @@ services:
     command: npm run start:dev
     networks:
       - server-dev
+  #########################################
+  #   Setup Frontend container
+  #########################################
+  frontend:
+    depends_on:
+      - backend
+    container_name: frontend-dev
+    image: ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_FRONTEND_IMAGE}
+    build:
+      context: ./frontend
+      target: development
+    environment:
+      - NEXT_PUBLIC_BACKEND_HOST_DOMAIN=${BACKEND_HOST_DOMAIN}
+    ports:
+      - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"
+    volumes:
+      - type: bind
+        source: ./frontend
+        target: /app
+    command: npm run dev
 volumes:
   db:
 networks:

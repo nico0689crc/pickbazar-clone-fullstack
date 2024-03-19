@@ -40,6 +40,21 @@ services:
       - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
     networks:
       - server-prod
+  #########################################
+  #   Setup Frontend container
+  #########################################
+  frontend:
+    depends_on:
+      - backend
+    container_name: frontend-prod
+    image: ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_FRONTEND_IMAGE}
+    build:
+      context: ./frontend
+      target: production
+      args:
+        - NEXT_PUBLIC_BACKEND_HOST_DOMAIN=${BACKEND_HOST_DOMAIN}
+    ports:
+      - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"
 volumes:
   db:
 networks:
