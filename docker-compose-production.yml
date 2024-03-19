@@ -14,7 +14,7 @@ services:
     ports:
       - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
     volumes:
-      - db:/var/lib/mysql
+      - db-prod:/var/lib/mysql
     networks:
       - server-prod
   #########################################
@@ -56,6 +56,6 @@ services:
     ports:
       - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"
 volumes:
-  db:
+  db-prod:
 networks:
   server-prod:

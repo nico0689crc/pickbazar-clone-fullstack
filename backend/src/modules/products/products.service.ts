@@ -23,6 +23,7 @@ export class ProductsService implements IProductService {
         uuid: faker.string.uuid(),
         title: faker.word.words({ count: { min: 5, max: 10 } }),
         description: faker.word.words({ count: { min: 80, max: 100 } }),
+        stock: faker.number.int({ min: 0, max: 100 }),
         coverUrl: faker.image.urlLoremFlickr({ category: 'products' }),
       }),
     );
