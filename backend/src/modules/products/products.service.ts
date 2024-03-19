@@ -18,13 +18,13 @@ export class ProductsService implements IProductService {
     return this.productRepository.findOne(options);
   }
   async runSeeds(): Promise<void> {
-    const promises = [...Array(100)].map((_, i) =>
+    const promises = [...Array(10)].map((_, i) =>
       this.productRepository.save({
         uuid: faker.string.uuid(),
         title: faker.word.words({ count: { min: 5, max: 10 } }),
         description: faker.word.words({ count: { min: 80, max: 100 } }),
         coverUrl: faker.image.urlLoremFlickr({ category: 'products' }),
-        stock: faker.number.int({ min: 0, max: 1000 })
+        stock: faker.number.int({ min: 0, max: 50 })
       }),
     );
 
