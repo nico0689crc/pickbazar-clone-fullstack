@@ -27,7 +27,7 @@ jobs:
           -e MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD_STAGING}} \
           -e MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD_STAGING}} \
           --network staging-network \
-          mysql:8.3.0 || true
+          mysql:8.3.0
           
   build-backend-image-and-push:
     runs-on: ubuntu-latest
