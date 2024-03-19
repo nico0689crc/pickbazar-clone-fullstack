@@ -1,0 +1,76 @@
+name: staging_pr_ci_cd_pipeline
+
+on:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - 'staging'
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+jobs:
+
+  build-database:
+    runs-on: self-hosted
+
+    steps:
+    - name: Create a network for staging-pr
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker network create staging-pr-network || true
+    - name: Stop old docker container
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker stop ${{secrets.MYSQL_DATABASE_STAGING_PR}} || true
+    - name: Run Docker Container
+      run: |
+        echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker run --rm -d \
+          --name ${{secrets.MYSQL_DATABASE_STAGING_PR}} \
+          -v /var/lib/mysql \
+          -e MYSQL_DATABASE=${{secrets.MYSQL_DATABASE_STAGING_PR}} \
+          -e MYSQL_USER=${{secrets.MYSQL_USER_STAGING_PR}} \
+          -e MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD_STAGING_PR}} \
+          -e MYSQL_ROOT_PASSWORD=${{secrets.MYSQL_ROOT_PASSWORD_STAGING_PR}} \
+          --network staging-pr-network \
+          mysql:8.3.0
+          
+  build-backend-image-and-push:
+    runs-on: ubuntu-latest
+    needs: build-database
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.ref }}
+    - name: Login Dockerhub
+      env:
+        DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
+        DOCKER_HUB_PASSWORD: ${{secrets.DOCKER_HUB_PASSWORD}}
+      run: docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+      
+    - name: Build the Docker image
+      run: docker build -t ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_BACKEND_IMAGE_STAGING_PR}} ./backend
+           
+    - name: Push to Dockerhub
+      run: docker push ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_BACKEND_IMAGE_STAGING_PR}}:latest
+
+  pull-backend-image-and-run-container:
+    runs-on: self-hosted
+    needs: build-backend-image-and-push
+    steps:
+    - name: Create a network for staging-pr
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker network create staging-pr-network || true
+    - name: Pull Docker image
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker pull ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_BACKEND_IMAGE_STAGING_PR}}:latest
+    - name: Stop old docker container
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker stop backend-staging-pr || true
+    - name: Run Docker Container
+      run: |
+        echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker run --rm -d \
+          -p ${{secrets.BACKEND_HOST_PORT_STAGING_PR}}:${{secrets.BACKEND_CONTAINER_PORT_STAGING_PR}} \
+          -e BACKEND_CONTAINER_PORT=${{secrets.BACKEND_CONTAINER_PORT_STAGING_PR}} \
+          -e MYSQL_HOST=${{secrets.MYSQL_DATABASE_STAGING_PR}} \
+          -e MYSQL_PORT=${{secrets.MYSQL_CONTAINER_PORT_STAGING_PR}} \
+          -e MYSQL_DATABASE=${{secrets.MYSQL_DATABASE_STAGING_PR}} \
+          -e MYSQL_USER=${{secrets.MYSQL_USER_STAGING_PR}} \
+          -e MYSQL_PASSWORD=${{secrets.MYSQL_PASSWORD_STAGING_PR}} \
+          -e FRONTEND_HOST_DOMAIN=${{secrets.FRONTEND_HOST_DOMAIN_STAGING_PR}} \
+          --name backend-staging-pr \
+          --network staging-pr-network \
+          ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_BACKEND_IMAGE_STAGING_PR}}:latest
