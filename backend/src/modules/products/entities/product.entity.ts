@@ -26,6 +26,9 @@ export class Product {
   @Column({ nullable: true })
   coverUrl: string;
 
+  @Column({ nullable: false, default: 0 })
+  stock: number;
+
   @CreateDateColumn()
   createdAt: number;
 
