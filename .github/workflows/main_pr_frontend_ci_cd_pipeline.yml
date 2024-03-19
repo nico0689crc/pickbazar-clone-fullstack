@@ -1,4 +1,4 @@
-name: staging_pr_frontend_ci_cd_pipeline
+name: main_pr_frontend_ci_cd_pipeline
 
 on:
   pull_request:
