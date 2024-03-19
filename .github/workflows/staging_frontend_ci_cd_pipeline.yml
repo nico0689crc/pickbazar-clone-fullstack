@@ -36,10 +36,10 @@ jobs:
     - name: Pull Docker image
       run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker pull ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_FRONTEND_IMAGE_STAGING}}:latest
     - name: Stop old docker container
-      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker stop frontend-staging-pr || true
+      run: echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker stop frontend-staging || true
     - name: Run Docker Container
       run: |
         echo ${{secrets.SHH_USER_PASSWORD}} | sudo -S docker run --rm -d \
           -p ${{secrets.FRONTEND_HOST_PORT_STAGING}}:${{secrets.FRONTEND_CONTAINER_PORT_STAGING}} \
-          --name frontend-staging-pr \
+          --name frontend-staging \
           ${{secrets.DOCKER_HUB_USERNAME}}/${{secrets.DOCKER_HUB_FRONTEND_IMAGE_STAGING}}:latest
